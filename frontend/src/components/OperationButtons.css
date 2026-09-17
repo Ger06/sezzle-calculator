@@ -1,0 +1,16 @@
+.key-unary {
+  border-color: #5b9bf5;
+  color: #5b9bf5;
+}
+
+.key-operator {
+  border-color: #e8a83c;
+  color: #e8a83c;
+}
+
+.key-equals {
+  background: #e8a83c;
+  border-color: #e8a83c;
+  color: #0d1117;
+  font-weight: 700;
+}
