@@ -1,12 +1,22 @@
 package handlers
 
-import "net/http"
+import (
+	"net/http"
+	"os"
+)
 
-const allowedOrigin = "http://localhost:5173"
+const defaultAllowedOrigin = "http://localhost:5173"
+
+func allowedOrigin() string {
+	if origin := os.Getenv("CORS_ALLOWED_ORIGIN"); origin != "" {
+		return origin
+	}
+	return defaultAllowedOrigin
+}
 
 func CORSMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin())
 		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 

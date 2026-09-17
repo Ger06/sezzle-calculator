@@ -1,0 +1,24 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../backend.Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      # Must match the origin where the frontend is actually served from
+      # the user's browser — the host-mapped port below, not the internal
+      # Docker network address.
+      - CORS_ALLOWED_ORIGIN=http://localhost:3000
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../frontend.Dockerfile
+      args:
+        # Reachable from the browser, not from inside the frontend container.
+        - VITE_API_URL=http://localhost:8080
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
