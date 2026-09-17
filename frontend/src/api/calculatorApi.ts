@@ -1,6 +1,6 @@
 import type { ApiResult, ErrorCode } from '../types/calculator'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
 
 interface ErrorBody {
   error: { code: ErrorCode; message: string }

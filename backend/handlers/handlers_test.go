@@ -523,3 +523,37 @@ func TestCORSMiddlewareOptionsPreflight(t *testing.T) {
 		t.Error("Access-Control-Allow-Methods header missing on preflight response")
 	}
 }
+
+func TestAllowedOriginRespectsEnvOverride(t *testing.T) {
+	t.Setenv("CORS_ALLOWED_ORIGIN", "https://frontend-production.up.railway.app")
+
+	req := httptest.NewRequest(http.MethodPost, "/add", strings.NewReader(`{}`))
+	rec := httptest.NewRecorder()
+
+	CORSMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})).ServeHTTP(rec, req)
+
+	want := "https://frontend-production.up.railway.app"
+	if got := rec.Header().Get("Access-Control-Allow-Origin"); got != want {
+		t.Errorf("Access-Control-Allow-Origin = %q, want %q", got, want)
+	}
+}
+
+func TestAllowedOriginFallsBackToLocalhostWhenUnset(t *testing.T) {
+	// An empty value is indistinguishable from "unset" to os.Getenv, and
+	// t.Setenv restores whatever CORS_ALLOWED_ORIGIN was after the test.
+	t.Setenv("CORS_ALLOWED_ORIGIN", "")
+
+	req := httptest.NewRequest(http.MethodPost, "/add", strings.NewReader(`{}`))
+	rec := httptest.NewRecorder()
+
+	CORSMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})).ServeHTTP(rec, req)
+
+	want := "http://localhost:5173"
+	if got := rec.Header().Get("Access-Control-Allow-Origin"); got != want {
+		t.Errorf("Access-Control-Allow-Origin = %q, want %q", got, want)
+	}
+}

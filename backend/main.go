@@ -3,9 +3,17 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"sezzle-calculator/backend/handlers"
 )
+
+func resolvePort() string {
+	if port := os.Getenv("PORT"); port != "" {
+		return port
+	}
+	return "8080"
+}
 
 func main() {
 	mux := http.NewServeMux()
@@ -19,8 +27,9 @@ func main() {
 
 	handler := handlers.CORSMiddleware(mux)
 
-	log.Println("listening on :8080")
-	if err := http.ListenAndServe(":8080", handler); err != nil {
+	addr := ":" + resolvePort()
+	log.Println("listening on", addr)
+	if err := http.ListenAndServe(addr, handler); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -6,7 +6,7 @@ RUN npm ci
 COPY . .
 # VITE_API_URL must be a URL reachable from the user's browser
 # (e.g. http://localhost:8080), never a Docker-internal service name.
-ARG VITE_API_URL=http://localhost:8080
+ARG VITE_API_URL=https://sezzle-calculatorapi-production.up.railway.app
 ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 
