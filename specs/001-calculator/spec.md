@@ -181,14 +181,25 @@ shapes referenced throughout this section:
   label), the system shall remove the last digit from the operand
   currently being entered; deleting the only remaining digit shall reset
   that operand's display to its empty/zero state, not leave it blank in
-  an invalid way.
+  an invalid way. If no operand is currently being entered — e.g.
+  immediately after a result is displayed (RF-16), before any new digit
+  has been pressed — the action is a no-op: a freshly shown, untouched
+  value is frozen, not editable in place, consistent with RF-13 already
+  replacing rather than appending to that same displayed value on the
+  next digit press.
 - **RF-21 (Keyboard input)**: When the user presses a keyboard key mapped
   to a digit, a binary operator (`+ - * / ^`), `%`, Enter, Escape, or
   Backspace, the system shall perform the same action as the
   corresponding control — digit entry (RF-13), operator
   selection/chaining (RF-14), submitting the pending operation (RF-14),
   clear (RF-19), or delete-last-digit (RF-20) respectively — producing
-  behavior identical to the equivalent mouse/touch input.
+  behavior identical to the equivalent mouse/touch input. This global
+  mapping applies only when keyboard focus is not already on one of the
+  calculator's own interactive controls: if the user has Tab-focused a
+  specific button (e.g. `+`) and presses Enter or Space, the system
+  shall let the browser's native button-activation handle it — the
+  global Enter-means-equals mapping above must not also intercept that
+  keypress.
 - **RF-22 (Decimal point)**: When the user presses the decimal-point
   control, the system shall append a decimal point to the operand
   currently being entered, unless that operand already contains one, in
@@ -240,6 +251,12 @@ shapes referenced throughout this section:
   mathematically wrong or misleading value (e.g. `0` in place of an
   error) for an operation it cannot complete — it always signals failure
   explicitly (RF-8, RF-9).
+- **RNF-5 (Touch accessibility)**: All interactive controls (Keypad and
+  OperationButtons) have a minimum touch target size of 44×44px,
+  regardless of viewport; on mobile viewports, per the approved
+  reference design, the equals control is 56px tall. Pressed-state
+  feedback uses `:active` styling rather than relying solely on
+  `:hover`, since touch devices have no hover equivalent.
 
 ## Edge cases
 - `divide(0, 0)` → `DIVISION_BY_ZERO`, not `NaN` — the check is on the
