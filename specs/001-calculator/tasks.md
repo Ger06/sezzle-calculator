@@ -91,7 +91,7 @@ Frontend task (Phase 2) starts.
 
 ## Phase 2 — Frontend
 
-- [ ] **T13 — Test tooling + template cleanup.** Add Vitest + React
+- [x] **T13 — Test tooling + template cleanup.** Add Vitest + React
   Testing Library as dev dependencies (already mandated by `AGENTS.md`,
   not a new undecided dependency) with minimal config; remove the
   default Vite template content (`App.tsx`, `App.css`,
@@ -99,28 +99,28 @@ Frontend task (Phase 2) starts.
   `npm run test` runs (even with zero tests yet) and the default Vite
   counter demo is gone.
 
-- [ ] **T14 — Reducer: entry & editing actions.** Write failing tests,
+- [x] **T14 — Reducer: entry & editing actions.** Write failing tests,
   then implement digit entry, decimal point (no-op if the operand
   already has one), sign toggle, backspace (including down to
   empty/zero), and clear, in `state/calculatorReducer.ts`. **RF:** RF-13,
   RF-19, RF-20, RF-22, RF-23. **Done when:** all five actions pass their
   tests in isolation (no rendering).
 
-- [ ] **T15 — Reducer: operator selection & chaining.** Write failing
+- [x] **T15 — Reducer: operator selection & chaining.** Write failing
   tests, then implement operator selection (defaulting to `0` as the
   first operand per RF-14), the chaining-with-a-second-operand vs.
   replace-the-pending-operator-without-one branch, and operator-after-a-
   displayed-result. **RF:** RF-14, RF-18, RF-27. **Done when:** both the
   chain/replace branch and the RF-27 case have a passing test.
 
-- [ ] **T16 — Reducer: submission lifecycle & error states.** Write
+- [x] **T16 — Reducer: submission lifecycle & error states.** Write
   failing tests, then implement the in-flight guard, result display,
   error display, error-recovery-on-new-input, and network-failure state.
   **RF:** RF-16, RF-17, RF-24, RF-25, RF-26. **Done when:** a simulated
   "start → success" and a "start → error" sequence each land in the
   correct terminal state.
 
-- [ ] **T17 — calculatorApi.** Write failing tests (mocking `fetch`,
+- [x] **T17 — calculatorApi.** Write failing tests (mocking `fetch`,
   including the `response.ok` gotcha per `docs/decisions.md` #10) for
   one function per operation; implement, returning the `{ok:true,result}
   | {ok:false,kind:'domain',...} | {ok:false,kind:'network'}` union.
@@ -128,19 +128,19 @@ Frontend task (Phase 2) starts.
   functions send the correct request field names (spec.md's Data
   contract) and correctly discriminate all three outcomes.
 
-- [ ] **T18 — Display + Keypad.** Write failing RTL tests, then
+- [x] **T18 — Display + Keypad.** Write failing RTL tests, then
   implement `Display` (value / error / connection-error rendering) and
-  `Keypad` (digits, `.`, `±`, `⌫`, Clear — wired to the reducer). **RF:**
+  `Keypad` (digits, `.`, `±`, `⌫`, Clear — wired to the reducer). Add basic responsive support to Display, Touch targets (all Keypad and OperationButtons buttons) must be at least 44×44px, regardless of viewport size. Do not rely on :hover as the only feedback for button state — use :active (which fires on touch too) for pressed-state styling, so mobile users get visual feedback without a hover capability. **RF:**
   RF-13, RF-16, RF-17, RF-19, RF-20, RF-22, RF-23, RF-25. **Done when:**
   a digit press updates the rendered display in a test.
 
-- [ ] **T19 — OperationButtons + disabled-state wiring.** Write failing
+- [x] **T19 — OperationButtons + disabled-state wiring.** Write failing
   tests, then implement the operator/unary/equals buttons and their
   `disabled` wiring to RF-18/RF-26. **RF:** RF-14, RF-15, RF-18, RF-26.
   **Done when:** equals is disabled with no second operand entered and
   re-enabled after a response, per test.
 
-- [ ] **T20 — Calculator container: wiring + keyboard.** Write failing
+- [x] **T20 — Calculator container: wiring + keyboard.** Write failing
   integration tests, then implement `Calculator.tsx`: owns `useReducer`,
   is the only place calling `calculatorApi` (dispatching start/success/
   error around it), and the inline `keydown` listener. **RF:** RF-21,
@@ -149,7 +149,7 @@ Frontend task (Phase 2) starts.
   (including `^` reaching general power), one unary shortcut, one error
   path, and one keyboard-equivalence case — all green.
 
-- [ ] **T21 — Manual CORS verification + full green check.** Run the
+- [x] **T21 — Manual CORS verification + full green check.** Run the
   backend (`go run main.go`) and frontend (`npm run dev`) together;
   perform one calculation for each of the seven operations by hand in
   the browser. **RF:** RF-11 (manual — cross-process behavior isn't
