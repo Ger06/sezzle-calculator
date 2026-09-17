@@ -258,3 +258,56 @@ frontend/src/
 **Trade-off:** none of substance — this is additive UX on top of existing, already-tested logic, not new logic requiring its own test surface beyond confirming each key/icon dispatches the right action.
 
 **Related refinement:** the MVP scope also settled on a single Clear/AC action (RF-19, full reset) rather than a separate "clear current entry" action — the on-screen delete-last-digit icon covers the more granular correction case instead, avoiding a third, redundant clear-type control.
+
+
+---
+
+## 18. A freshly displayed result is frozen for both digit entry and Backspace
+
+**Context:** found during manual testing — pressing Backspace immediately after a result (e.g. `9 × 8 = 72`) edited that result digit-by-digit (`72` → `7`), while pressing a fresh digit in the same state already replaced the display entirely rather than appending to it. Two different actions disagreed on whether a freshly shown result is "editable in place" or "frozen, replaced by new input."
+
+**Alternatives considered:**
+- Make both actions treat the result as editable (digit press would append instead of replace, Backspace would keep editing in place).
+- Make both actions treat the result as frozen (digit press replaces, as it already did; Backspace becomes a no-op until new entry starts).
+
+**Decision:** frozen for both — Backspace is a no-op immediately after a result, matching digit-press's existing replace behavior. Formalized in `spec.md` RF-20.
+
+**Why:** digit-press-replaces is the near-universal calculator convention already in place; changing it to append would have been the larger, riskier change. Making Backspace consistent with that existing convention (rather than the reverse) required touching only Backspace's behavior, not the more-tested and more standard digit-entry path.
+
+**Trade-off:** doesn't replicate how some calculators (e.g. Android's) let Backspace "undo" an equals and restore the pending expression — but that behavior depends on retaining a visible expression trail, which was explicitly ruled out in decision #1 (no expression display). This isn't a missing feature, it's a direct, expected consequence of that earlier decision.
+
+---
+
+## 19. Global keyboard listener defers to native button activation when focus is already on a control
+
+**Context:** found via manual screen-reader testing (Windows Narrator, Tab navigation). Two keyboard-handling mechanisms were competing for the same keystroke: the browser's native behavior (a focused `<button>` activates on Enter/Space, free of charge) and the app's own global `keydown` listener (RF-21, mapping Enter to "equals" regardless of what currently has focus). Tab-focusing an operator button and pressing Enter was being intercepted by the global listener's equals-mapping instead of activating the focused button.
+
+**Decision:** the global keydown listener checks whether `event.target` is already one of the calculator's own interactive buttons; if so, it returns early and takes no action, letting the browser's native activation handle the keypress instead.
+
+**Why:** a global "keyboard shortcuts work anywhere on the page" listener and standard button keyboard-accessibility (native Enter/Space activation) are both individually correct and expected, but only compatible if the global listener is aware of when native handling should take precedence. Without this guard, Tab/screen-reader navigation — a use case decision #17 explicitly aimed to support — would have been silently broken by the very keyboard-shortcut feature meant to complement it.
+
+**Trade-off:** none of substance — a one-line guard clause, found and fixed via the same manual testing discipline already applied elsewhere (decisions.md's testing philosophy), not a design compromise.
+
+---
+
+## 20. CORS allowed origin read from environment variable, with a dev-friendly default
+
+**Context:** `docs/decisions.md` #14 and `spec.md` RF-11 originally fixed the CORS allowed origin as a hardcoded string (`http://localhost:5173`), the frontend's dev-server origin. Docker changes what origin the frontend is actually served from (`http://localhost:3000`, per the `docker-compose.yml` port mapping), so a hardcoded value can't be correct in both environments at once.
+
+**Decision:** `allowedOrigin()` reads `CORS_ALLOWED_ORIGIN` from the environment, falling back to `http://localhost:5173` if unset. `docker-compose.yml` sets `CORS_ALLOWED_ORIGIN=http://localhost:3000` for the backend service; running `go run main.go` directly (no Docker) gets the fallback with no configuration needed.
+
+**Why:** the alternative — hardcoding a different literal per environment, or maintaining two versions of `cors.go` — would violate RNF-3's spirit (a consistent, predictable contract) by making backend behavior depend on which file happened to be deployed. An environment variable with a sensible default keeps local development frictionless (zero setup) while making the Docker/production value externally configurable without a code change or rebuild.
+
+**Trade-off:** none of substance — one extra `os.Getenv` call and a documented environment variable, standard practice for anything that legitimately differs between environments.
+
+---
+
+## 21. Go toolchain auto-fetch in the Docker build stage
+
+**Context:** the local Go installation (and `go.mod`'s `go` directive) is newer than the pinned `golang:1.22-alpine` base image originally used in `backend.Dockerfile`, causing the Docker build to fail (`go.mod requires go >= 1.27.1, running go 1.22.12`) with Go's default `GOTOOLCHAIN=local` behavior, which refuses to auto-download a newer toolchain.
+
+**Decision:** update the base image to `golang:1.27-alpine` (matching the required major/minor line) and set `ENV GOTOOLCHAIN=auto` in the build stage, so Go downloads the exact required patch version at build time if the base image doesn't already ship it.
+
+**Why:** pinning the exact patch version of the base image tag is brittle — it would need updating every time the local Go installation's patch version changes, an easy thing to forget and a confusing failure mode for anyone else building the image. `GOTOOLCHAIN=auto` makes the build resilient to minor patch drift between the local environment and the base image, at the one-time cost of a small extra download during the (already-cached-after-first-build) Docker build stage.
+
+**Trade-off:** the build stage needs network access to fetch a toolchain on a cache miss — a non-issue for local development or CI, but worth noting if this were ever built in a fully network-isolated environment.
