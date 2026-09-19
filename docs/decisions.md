@@ -101,7 +101,7 @@ backend/
 
 ## 7. No database or persistence
 
-**Context:** older versions of this exercise from other candidates were found online that included a database for operation history.
+**Context:** While thinking through the data layer, I looked at examples of other calculator implementations that included a database for operation history.
 
 **Decision:** no persistence is implemented. The calculator is stateless: each request is independent.
 
@@ -206,14 +206,6 @@ backend/
 
 ---
 
-## Process note: how design patterns were identified
-
-Design patterns in this project were not decided upfront and then forced into the code — they were identified through a dedicated review step after each major module was implemented, by explicitly asking: *"Review this code and identify which recognized design patterns it applies, even if not consciously named while writing it — name each pattern, where it appears, and why it fits (or note if it's a partial approximation)."*
-
-This is deliberately a separate step from writing the code itself. Asking for a pattern to be *used* from the start risks forcing it onto a problem that didn't need it — the opposite of the judgment this project aims to demonstrate. Solving the problem first with straightforward code, then naming what emerged, keeps pattern usage honest: patterns present because they fit the problem, not because they were requested in advance.
-
----
-
 ## 15. Frontend folder structure: type-based, not feature-based
 
 **Context:** frontend code can be organized by technical role (`components/`, `state/`, `api/`, `types/` — type-based) or by business feature (`features/calculator/` containing its own component, state, and API calls together — feature-based).
@@ -249,7 +241,7 @@ frontend/src/
 
 ## 17. Physical keyboard support, as the "unexpected but necessary" feature
 
-**Context:** the Silver.dev take-home guide notes that exceptional submissions often add "an unexpected feature" that demonstrates product sense — something users would expect but that wasn't explicitly requested — as opposed to adding unrequested business capabilities (which would contradict the scope discipline already established in decisions #1, #7, and #14).
+**Context:** Beyond the core requirements, I wanted to add one feature that wasn't strictly required but improves the product: full physical keyboard support (digits, operators, Enter, Backspace, Escape), not just mouse/touch. This adds real usability value without expanding scope into features the spec explicitly excluded (history, memory, multiple modes).
 
 **Decision:** support keyboard input in addition to clicking buttons, wired to the same reducer actions the buttons already dispatch. Finalized in `specs/001-calculator/spec.md` (RF-21) after the spec's QA pass, the scope ended up richer than originally sketched here: digits, all six binary operators (`+ - * / % ^`), decimal point, `Enter` for equals, `Escape` for clear (AC), and `Backspace` for delete-last-digit — the last one also exposed as an on-screen icon button (⌫-style, matching the standard Android calculator convention), not keyboard-only as first drafted.
 
